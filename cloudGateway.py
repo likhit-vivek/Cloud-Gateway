@@ -1,6 +1,7 @@
 import datetime
 import time
 import copy
+from random import randint
 
 # decorator function for creating singleton classes
 def singleton(_myClass):
@@ -27,6 +28,11 @@ class Constants(object):
         self.maxVcpuForTask = 8
         self.maxMemForTask = 64
         self.maxDiskForTask = 64
+        
+        # below two are mutually dependent and always add up to 1
+        self.deleteWithProbability = 45 # equivalent to 0.45
+        # self.addWithProbability = 0.55
+        
 
 class Machine(object):
     def __init__(self, name, vcpus, memory, disks):
@@ -107,12 +113,19 @@ class CloudGateway(object):
         pass
     
     def generateRandomTask(self):
-        pass
+        '''create random task for scheduling'''
+        memory = randint(1,8)
+        disk = randint(1,64)
+        vcpus = randint(1,8)
+        # call create function here
     
     def executeRandomTask(self):
         '''create or delete a random task'''
-        
-        pass
+        deleteTask = True if randint(1,100) <= deleteWithProbability else False
+        if deleteTask:
+            pass
+        else:
+            pass
 
     def getAverageUsage(self):
         '''returns the average CPU, disk and memory usage for public and private cloud'''
