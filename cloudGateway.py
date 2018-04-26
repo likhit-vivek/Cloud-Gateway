@@ -119,21 +119,6 @@ class CloudGateway(object):
         '''initialize the public cloud'''
         pass
     
-    def generateRandomTask(self):
-        '''create random task for scheduling'''
-        memory = randint(1,8)
-        disk = randint(1,64)
-        vcpus = randint(1,8)
-        # call create function here
-    
-    def executeRandomTask(self):
-        '''create or delete a random task'''
-        deleteTask = True if randint(1,100) <= deleteWithProbability else False
-        if deleteTask:
-            pass
-        else:
-            pass
-
     def getAverageUsage(self):
         '''returns the average CPU, disk and memory usage for public and private cloud'''
         pass
@@ -168,6 +153,29 @@ class CloudGateway(object):
             migrateToPrivate()
         if checkReorganisePublic():
             reorganisePublic()
+
+class dummyTaskGenerator:
+    def generateRandomTask(self):
+        '''create random task for scheduling'''
+        memory = randint(1,8)
+        disk = randint(1,64)
+        vcpus = randint(1,8)
+        
+        gateway = CloudGateway()
+        gateway.scheduleTask(memory,disk,vcpus)
+    
+    def executeRandomTask(self):
+        '''create or delete a random task'''
+        deleteTask = True if randint(1,100) <= deleteWithProbability else False
+        task = Tasks()
+        if deleteTask:
+            noOfTasks = len(task.tasksList)
+            deleteIndex = randint(0,noOfTasks-1)
+            task.delete(deleteIndex)
+        else:
+            generateRandomTask()
+            pass
+
 
 if __name__ == '__main__':
     log = open("cloudGatewayLog.txt","a")
