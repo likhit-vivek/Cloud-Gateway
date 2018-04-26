@@ -1,7 +1,5 @@
-import datetime
-import time
-import copy
 from random import randint
+from heapq import heappush, heappop
 
 # decorator function for creating singleton classes
 def singleton(_myClass):
@@ -53,10 +51,10 @@ class Task(object):
         self.vcpus = vcpus
 
 class CloudEngine(object):
-    def __init__(self, vcpus, mem, disks):
+    def __init__(self, vcpus, memory, disks):
         '''We have homogeneous cloud'''
         # Change this heap
-        self.machineDict = {}
+        self.machineHeap = []
         self.vcpus = vcpus
         self.disks = disks
         self.memory = memory
@@ -67,34 +65,43 @@ class CloudEngine(object):
     def addServer(self):
         machine = Machine(self.idCounter, self.vcpus, self.memory, self.disks)
         self.idCounter += 1
-        self.machineDict[name] = machine
+        heappush(self.machineHeap, (machine.memoryFree, machine))
 
     # check if machine can host the given task
-    def can_host(self, machine, task):
-        if machine.memory >= task.memory and machine.disks >= task.disks and machine.vcpus >= task.vcpus:
+    def canHost(self, machine, task):
+        if machine.memoryFree - task.memory >= 0.1 * machine.memory and \
+        machine.disksFree - task.disks >= 0.1 * machine.disks and \
+        machine.vcpusFree - task.vcpus >= 0.1 * machine.vcpus:
             return True
         return False
 
     def removeMachine(self, name):
         '''remove the given machine'''
-        self.machineDict.pop(name, None)
+        self.machineHeap.pop(name, None)
+
+class Task(object):
+    def __init__(self, name, vcpus, memory, disks, public=False):
+        self.name = name
+        self.vcpus = vcpus
+        self.memory = memory
+        self.disks = disks
+        self.public = False
+        self.machine = None
 
 @singleton
 class Tasks(object):
     def __init__(self):
-        self.tasksDict = {}
+        self.tasksList = []
+        self.idCounter = 0
 
-    def create(self, name, vcpus, memory, disks):
+    def create(self, vcpus, memory, disks, public=False):
         # code to create tasks
-        task = Task(name, vcpus, memory, disks)
-        self.tasksDict[name] = task
+        task = Task(vcpus, memory, disks, public)
+        self.tasksList.append(task)
 
     # deleting given task
-    def delete(self, name):
-        self.tasksDict.pop(name, name)
-
-    def removeTask(self, rack, task):
-        self.tasksDict.pop(task, None)
+    def delete(self, index):
+        del tasksList[index]
 
 class CloudGateway(object):
     def __init__(self):
@@ -109,7 +116,7 @@ class CloudGateway(object):
         pass
 
     def initialisePrivateCloud(self):
-        '''initialise the public cloud'''
+        '''initialize the public cloud'''
         pass
     
     def generateRandomTask(self):
