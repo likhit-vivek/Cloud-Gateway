@@ -16,17 +16,17 @@ def singleton(_myClass):
 class Constants(object):
 	'''Configuration based on xE.16x.large'''
 	def __init__(self):
-	self.numPrivateMachines = 20
-	self.vcpuPrivate = 64
-	self.disksPrivate = 1920
-	self.memoryPrivate = 1952
-	self.vcpuPublic = 64
-	self.disksPublic = 1920
-	self.memoryPublic = 1952
-	self.avgVcpuForTask = 4
-	self.maxVcpuForTask = 8
-	self.maxMemForTask = 64
-	self.maxDiskForTask = 64
+		self.numPrivateMachines = 20
+		self.vcpuPrivate = 64
+		self.disksPrivate = 1920
+		self.memoryPrivate = 1952
+		self.vcpuPublic = 64
+		self.disksPublic = 1920
+		self.memoryPublic = 1952
+		self.avgVcpuForTask = 4
+		self.maxVcpuForTask = 8
+		self.maxMemForTask = 64
+		self.maxDiskForTask = 64
 
 class Machine(object):
     def __init__(self, name, vcpus, memory, disks):
@@ -105,9 +105,13 @@ class CloudGateway(object):
 	def initialisePrivateCloud(self):
 		'''initialise the public cloud'''
 		pass
-
-	def createRandomTask(self):
+	
+	def generateRandomTask(self)
+		pass
+	
+	def executeRandomTask(self):
 		'''create or delete a random task'''
+		
 		pass
 
 	def getAverageUsage(self):
