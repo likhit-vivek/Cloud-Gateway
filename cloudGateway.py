@@ -1,5 +1,5 @@
 from random import randint
-from heapq import heappush, heappop
+from heapq import heappush, heappop, heapify
 
 # decorator function for creating singleton classes
 def singleton(_myClass):
@@ -30,7 +30,6 @@ class Constants(object):
         # below two are mutually dependent and always add up to 1
         self.deleteWithProbability = 45 # equivalent to 0.45
         # self.addWithProbability = 0.55
-        
 
 class Machine(object):
     def __init__(self, name, vcpus, memory, disks):
@@ -60,7 +59,10 @@ class CloudEngine(object):
         self.memory = memory
         # incremental counter used for naming new machines
         self.idCounter = 0
-    
+        self.avgMemory = 0
+        self.avgVcpu = 0
+        self.avgDisks = 0
+
     # adding machine to cloud
     def addServer(self):
         machine = Machine(self.idCounter, self.vcpus, self.memory, self.disks)
@@ -77,7 +79,10 @@ class CloudEngine(object):
 
     def removeMachine(self, name):
         '''remove the given machine'''
-        self.machineHeap.pop(name, None)
+        for i, machine in enumerate(machineHeap):
+            if machine.name == name:
+                del machineHeap[i]
+        heapify(machineHeap)
 
 class Task(object):
     def __init__(self, name, vcpus, memory, disks, public=False):
@@ -107,6 +112,10 @@ class CloudGateway(object):
     def __init__(self):
         self.publicCloud = CloudEngine
 
+    def createPrivateMachine(self):
+        '''create public cloud machine'''
+        pass
+
     def createPublicMachine(self):
         '''create public cloud machine'''
         pass
@@ -117,7 +126,8 @@ class CloudGateway(object):
 
     def initialisePrivateCloud(self):
         '''initialize the public cloud'''
-        pass
+        for _ in range(self.numPrivateMachines):
+            self.createPrivateMachine()
     
     def getAverageUsage(self):
         '''returns the average CPU, disk and memory usage for public and private cloud'''
@@ -183,5 +193,4 @@ if __name__ == '__main__':
     interpreter = RandomTaskGeneration()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
-    # Average CPU/Memory/Disk usage for both public and private cloud (6 lines)
-    #print graph()
+    # Average CPU/Memory/Disk usage for both public and private cloud     #print graph()
