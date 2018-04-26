@@ -76,61 +76,19 @@ class CloudEngine(object):
 @singleton
 class Tasks(object):
 	def __init__(self):
-		self.inDict = {}
+		self.tasksDict = {}
 
-	def create(self, image, task, instanceName, machine):
+	def create(self, name, vcpus, memory, disks):
 		# code to create tasks
-		info = {}
-		info['image'] = image
-		info['task'] = task
-		info['instanceName'] = instanceName
-		info['machine'] = machine
-		self.inDict[instanceName] = info
-
-		machine = CloudEngine()
-		rack = Rack()
-		# print machine.machineDict[machine]
-		machine.updateServer(instanceName, task, machine, "add_instance")
-		rack.updateRack(machine,image, 'add_instance')
-		print "Task successfully created"
-		# print machine.machineDict[machine]
+		task = Task(name, vcpus, memory, disks)
+		self.tasksDict[name] = task
 
 	# deleting given task
-	def delete(self, instanceName):
-		machine = CloudEngine()
-		rack = Rack()
-		machine.updateServer(instanceName, self.inDict[instanceName]['task'], self.inDict[instanceName]['machine'], "del_instance")
-		rack.updateRack(self.inDict[instanceName]['machine'], self.inDict[instanceName]['image'], "del_instance")
-		del self.inDict[instanceName]
+	def delete(self, name):
+		self.tasksDict.pop(name, name)
 
-	# Print all running tasks
-	def list(self):
-		# print self.inDict
-		if len(self.inDict) == 0:
-			print "No Task Running"
-			return
-
-		for task in self.inDict:
-			print "Task Name:", task,
-			print ", Image:", self.inDict[task]['image'],
-			print ", Task:", self.inDict[task]['task']
-
-	def show(self):
-		if len(self.inDict) == 0:
-			print "No Task Running"
-			return
-
-		for task in self.inDict:
-			print "Task Name:", task,
-			print ", Machine:", self.inDict[task]['machine']
-
-	def removeInstances(self, rack, task):
-		# remove the image cache used by this task from rack
-		# remove the task itself
-		rack_obj = Rack()
-		rack_obj.removeImageCache(rack, self.inDict[task]['image'])
-		del self.inDict[task]
-		pass
+	def removeTask(self, rack, task):
+		self.tasksDict.pop(task, None)
 
 class CloudGateway(object):
 	def __init__(self):
