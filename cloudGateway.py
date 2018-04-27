@@ -1,5 +1,6 @@
 from random import randint
 from heapq import heappush, heappop, heapify
+import constants
 
 logFile = open('cloudGateWayLog.txt', 'a')
 # decorator function for creating singleton classes
@@ -11,26 +12,6 @@ def singleton(_myClass):
             tasks[_myClass] = _myClass(*args, **kwargs)
         return tasks[_myClass]
     return getInstance
-
-@singleton
-class Constants(object):
-    '''Configuration based on xE.16x.large'''
-    def __init__(self):
-        self.numPrivateMachines = 20
-        self.vcpuPrivate = 64
-        self.disksPrivate = 1920
-        self.memoryPrivate = 1952
-        self.vcpuPublic = 64
-        self.disksPublic = 1920
-        self.memoryPublic = 1952
-        self.avgVcpuForTask = 4
-        self.maxVcpuForTask = 8
-        self.maxMemForTask = 64
-        self.maxDiskForTask = 64
-
-        # other constants
-        self.deleteWithProbability = 45 # equivalent to 0.45
-        self.maxUtililizationPerMachine = 0.9 # equivalent to 90%
 
 class Machine(object):
     def __init__(self, name, vcpus, memory, disks):
@@ -115,7 +96,7 @@ class Tasks(object):
         self.idCounter = 0
 
     def create(self, vcpus, memory, disks, public=False):
-        # code to create tasks
+        '''code to create tasks'''
         gateway = CloudGateway()
         engine = gateway.publicCloud if public else gateway.privateCloud
         hostMachine = None
@@ -136,21 +117,12 @@ class Tasks(object):
 @singleton
 class CloudGateway(object):
     def __init__(self):
-        constants = Constants()
         self.publicCloud = CloudEngine(constants.vcpuPrivate, constants.memoryPrivate, constants.disksPrivate)
         self.privateCloud = CloudEngine(constants.vcpuPublic, constants.memoryPublic, constants.disksPublic)
 
-    def createPrivateMachine(self):
-        '''create public cloud machine'''
-        pass
-
-    def createPublicMachine(self):
-        '''create public cloud machine'''
-        pass
-
     def canPublicHost(self, vcpus, memory, disks):
         '''check if public cloud requires additional machine for task to be scheduled'''
-        if self.publicCloud.avgVcpusUsage < 0.8 and \
+        if self.publicCloud.avgVcpusUsage < constants.maxEngineUtilization and \
         self.publicCloud.canHost(vcpus, memory, disks):
             return True
         return False
@@ -161,13 +133,12 @@ class CloudGateway(object):
 
     def initialisePrivateCloud(self):
         '''initialize the public cloud'''
-        constants = Constants()
         for _ in range(constants.numPrivateMachines):
-            self.createPrivateMachine()
+            self.privateCloud.addServer()
 
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
-        if self.privateCloud.avgVcpusUsage < 0.8 and \
+        if self.privateCloud.avgVcpusUsage < constants.maxEngineUtilization and \
         self.privateCloud.canHost(vcpus, memory, disks):
             return True
         return False
@@ -187,17 +158,23 @@ class CloudGateway(object):
         public = not self.canPrivateHost(vcpus, memory, disks)
         engine = self.publicCloud if public else self.privateCloud
         tasks = Tasks()
+        if not self.canPublicHost(vcpus, memory, disks):
+            self.publicCloud.addServer()
         tasks.create(vcpus, memory, disks, public)
         engine.updateTaskUsage(vcpus, memory, disks)
         self.logAverageUsage()
 
     def checkMigrateToPrivate(self):
         '''check if migration to private is required'''
-        pass
+        if self.privateCloud.avgVcpusUsage < constants.minEngineUtilization:
+            return True
+        return False
 
     def checkDefragPublic(self):
         '''check if reorganization tasks in public cloud'''
-        pass
+        if self.publicCloud.avgVcpusUsage < constants.minEngineUtilization:
+            return True
+        return False
 
     def migrateToPrivate(self):
         '''migrate tasks to private cloud from public cloud'''
@@ -217,7 +194,7 @@ class CloudGateway(object):
             self.defragPublic()
         
         engine = self.publicCloud if deletedTask.public else self.privateCloud
-        engine.updateTaskUsage(deletedTask.vcpus, deletedTask.memory, deletedTask.disks)
+        engine.updateTaskUsage(deletedTask.vcpus, deletedTask.memory, deletedTask.disks, False)
         self.logAverageUsage()
 
 class RandomTaskGeneration:
@@ -231,7 +208,6 @@ class RandomTaskGeneration:
 
     def executeRandomTask(self):
         '''create or delete a random task'''
-        constants = Constants()
         deleteTask = True if randint(1, 100) <= constants.deleteWithProbability else False
         tasks = Tasks()
         if deleteTask:
