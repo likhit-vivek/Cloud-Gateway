@@ -43,7 +43,7 @@ class Machine(object):
         self.disksFree = disks
         self.vcpusFree = vcpus
 
-    def canHost(vcpus, memory, disks):
+    def canHost(self, vcpus, memory, disks):
         if self.memoryFree - memory >= 0.1 * self.memory and \
         self.disksFree - disks >= 0.1 * self.disks and \
         self.vcpusFree - vcpus >= 0.1 * self.vcpus:
@@ -72,19 +72,18 @@ class CloudEngine(object):
 
     # check if machine can host the given task
     def canHost(self, vcpus, memory, disks):
-        for machine in machineHeap:
+        for machine in self.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 return True
         return False
 
     def updateTaskUsage(self, vcpus, memory, disks, public=False, create=True):
         '''update average usage of cloud engine'''
-        
+
         if create:
-            self.avgVcpusUsage += (vcpus / self.vcpus) / len(machineHeap)
-            self.avgMemoryUsage += (memory / self.memory) / len(machineHeap)
-            self.avgDisksUsage += (disks / self.disks) / len(machineHeap)
-        
+            self.avgVcpusUsage += (vcpus / self.vcpus) / len(self.machineHeap)
+            self.avgMemoryUsage += (memory / self.memory) / len(self.machineHeap)
+            self.avgDisksUsage += (disks / self.disks) / len(self.machineHeap)
         else:
             pass
 
@@ -160,7 +159,7 @@ class CloudGateway(object):
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
         if self.privateCloud.avgVcpusUsage < 0.8 and \
-        self.canPrivateHost.canHost(vcpus, memory, disks):
+        self.privateCloud.canHost(vcpus, memory, disks):
             return True
         return False
 
@@ -205,7 +204,7 @@ class CloudGateway(object):
     def deleteTask(self, index):
         '''delete the task at given index'''
         tasks = Tasks()
-        tasks.delete(deleteIndex)
+        tasks.delete(index)
         if self.checkMigrateToPrivate():
             self.migrateToPrivate()
         if self.checkReorganisePublic():
@@ -239,4 +238,5 @@ if __name__ == '__main__':
     interpreter = RandomTaskGeneration()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
-    # Average CPU/Memory/Disk usage for both public and private cloud     #print graph()
+    # Average CPU/Memory/Disk usage for both public and private cloud
+    #print graph()
