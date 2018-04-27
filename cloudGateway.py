@@ -1,6 +1,7 @@
 from random import randint
 from heapq import heappush, heappop, heapify
 
+logFile = open('cloudGateWayLog.txt', 'a')
 # decorator function for creating singleton classes
 def singleton(_myClass):
     tasks = {}
@@ -120,7 +121,9 @@ class Tasks(object):
         for machine in engine.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 hostMachine = machine
-                task = Task(vcpus, memory, disks, hostMachine, public)
+                task = Task(idCounter, vcpus, memory, disks, hostMachine, public)
+                self.tasksList.append(task)
+                idCounter += 1
                 return
         assert False, 'Task should be scheduled as canHost was checked for ' \
         'the engine before calling Tasks.create()'
@@ -154,10 +157,6 @@ class CloudGateway(object):
         for _ in range(constants.numPrivateMachines):
             self.createPrivateMachine()
 
-    def getAverageUsage(self):
-        '''returns the average CPU, disk and memory usage for public and private cloud'''
-        pass
-
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
         if self.privateCloud.avgVcpusUsage < 0.8 and \
@@ -167,11 +166,16 @@ class CloudGateway(object):
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
-        pass
+        log = ' '.join(['Average private Cpu usage, ', self.privateCloud.avgVcpusUsage,
+                        ', Average private memory usage, ', self.privateCloud.avgMemoryUsage,
+                        ', Average private disks usage, ', self.privateCloud.avgDisksUsage,
+                        ', Average public Cpu usage, ', self.publicCloud.avgVcpusUsage,
+                        ', Average public memory usage, ', self.publicCloud.avgMemoryUsage,
+                        ', Average public disks usage, ', self.publicCloud.avgDisksUsage])
+        logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
         '''decides if the task should be added to private or public cloud'''
-        self.tasksList.append(task)
         public = not self.canPrivateHost(vcpus, memory, disks)
         if public:
             engine = self.publicCloud
@@ -180,6 +184,7 @@ class CloudGateway(object):
         tasks = Tasks()
         tasks.create(vcpus, memory, disks, public)
         engine.updateTaskUsage(vcpus, memory, disks)
+        self.logAverageUsage()
 
     def checkMigrateToPrivate(self):
         '''check if migration to private is required'''
@@ -230,8 +235,7 @@ class RandomTaskGeneration:
             self.generateRandomTask()
 
 if __name__ == '__main__':
-    log = open("cloudGatewayLog.txt", "a")
-    print "\n*************CloudEngine gateway simulation****************\n"
+    print '\n*************CloudEngine gateway simulation*************\n'
     interpreter = RandomTaskGeneration()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
