@@ -64,14 +64,14 @@ class CloudEngine(object):
         self.avgVcpusUsage = 0
         self.avgDisksUsage = 0
 
-    # adding machine to cloud
     def addServer(self):
+        '''adding machine to cloud'''
         machine = Machine(self.idCounter, self.vcpus, self.memory, self.disks)
         self.idCounter += 1
         heappush(self.machineHeap, (machine.memoryFree, machine))
 
-    # check if machine can host the given task
     def canHost(self, vcpus, memory, disks):
+        '''check if machine can host the given task'''
         for machine in self.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 return True
@@ -148,6 +148,13 @@ class CloudGateway(object):
         '''create public cloud machine'''
         pass
 
+    def canPublicHost(self, vcpus, memory, disks):
+        '''check if public cloud requires additional machine for task to be scheduled'''
+        if self.publicCloud.avgVcpusUsage < 0.8 and \
+        self.publicCloud.canHost(vcpus, memory, disks):
+            return True
+        return False
+
     def deletePublicMachine(self):
         '''delete public cloud machine'''
         pass
@@ -188,7 +195,7 @@ class CloudGateway(object):
         '''check if migration to private is required'''
         pass
 
-    def checkReorganisePublic(self):
+    def checkDefragPublic(self):
         '''check if reorganization tasks in public cloud'''
         pass
 
@@ -196,7 +203,7 @@ class CloudGateway(object):
         '''migrate tasks to private cloud from public cloud'''
         pass
 
-    def reorganisePublic(self):
+    def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
         pass
 
@@ -206,8 +213,8 @@ class CloudGateway(object):
         deletedTask = tasks.delete(index)
         if self.checkMigrateToPrivate():
             self.migrateToPrivate()
-        if self.checkReorganisePublic():
-            self.reorganisePublic()
+        if self.checkDefragPublic():
+            self.defragPublic()
         
         engine = self.publicCloud if deletedTask.public else self.privateCloud
         engine.updateTaskUsage(deletedTask.vcpus, deletedTask.memory, deletedTask.disks)
