@@ -76,11 +76,16 @@ class CloudEngine(object):
                 return True
         return False
 
-    def updateTaskUsage(self, vcpus, memory, disks, public=False):
+    def updateTaskUsage(self, vcpus, memory, disks, public=False, create=True):
         '''update average usage of cloud engine'''
-        self.avgVcpusUsage += (vcpus / self.vcpus) / len(machineHeap)
-        self.avgMemoryUsage += (memory / self.memory) / len(machineHeap)
-        self.avgDisksUsage += (disks / self.disks) / len(machineHeap)
+        
+        if create:
+            self.avgVcpusUsage += (vcpus / self.vcpus) / len(machineHeap)
+            self.avgMemoryUsage += (memory / self.memory) / len(machineHeap)
+            self.avgDisksUsage += (disks / self.disks) / len(machineHeap)
+        
+        else:
+            pass
 
     def removeMachine(self, name):
         '''remove the given machine'''
@@ -194,12 +199,13 @@ class CloudGateway(object):
 
     def deleteTask(self, index):
         '''delete the task at given index'''
+        tasks = Tasks()
+        tasks.delete(deleteIndex)
         if self.checkMigrateToPrivate():
             self.migrateToPrivate()
         if self.checkReorganisePublic():
             self.reorganisePublic()
-        tasks = Tasks()
-        tasks.delete(deleteIndex)
+        self.logAverageUsage()
 
 class RandomTaskGeneration:
     def generateRandomTask(self):
