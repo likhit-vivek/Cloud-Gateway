@@ -122,18 +122,16 @@ class Tasks(object):
         for machine in engine.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 hostMachine = machine
-                task = Task(idCounter, vcpus, memory, disks, hostMachine, public)
+                task = Task(self.idCounter, vcpus, memory, disks, hostMachine, public)
                 self.tasksList.append(task)
-                idCounter += 1
+                self.idCounter += 1
                 return
         assert False, 'Task should be scheduled as canHost was checked for ' \
         'the engine before calling Tasks.create()'
 
     def delete(self, index):
-    '''deleting given task and returns the engine task was deleted from'''
-        public = self.tasksList[index].public
-        del self.tasksList[index]
-        return public
+        '''deleting given task and returns the engine task was deleted from'''
+        return self.tasksList.pop(index, None)
 
 @singleton
 class CloudGateway(object):
@@ -205,14 +203,14 @@ class CloudGateway(object):
     def deleteTask(self, index):
         '''delete the task at given index'''
         tasks = Tasks()
-        public = tasks.delete(index)
+        deletedTask = tasks.delete(index)
         if self.checkMigrateToPrivate():
             self.migrateToPrivate()
         if self.checkReorganisePublic():
             self.reorganisePublic()
         
-        engine = self.publicCloud if public else self.privateCloud
-        engine.updateTaskUsage(vcpus, memory, disks)
+        engine = self.publicCloud if deletedTask.public else self.privateCloud
+        engine.updateTaskUsage(deletedTask.vcpus, deletedTask.memory, deletedTask.disks)
         self.logAverageUsage()
 
 class RandomTaskGeneration:
