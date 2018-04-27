@@ -13,3 +13,17 @@ We had to consider the issue of fragmentation and understand how to use Heaps to
 We also understood how Azure implemented its horizontal and vertical auto-scaling but felt that the AWS model suits our project better and decided on similar design choices.
 
 ## Design Choices
+
+#### Full ownership
+
+#### Homogeneous machines
+
+#### Unlimited resources in Public cloud
+
+#### Max and Min load
+
+#### Machine specs vs Task requirements
+
+#### Using Heaps for defragmentation
+
+#### Migration back to Private cloud
