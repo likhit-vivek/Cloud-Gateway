@@ -155,7 +155,10 @@ class CloudGateway(object):
 
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
-        pass
+        if self.privateCloud.avgVcpusUsage < 0.8 and \
+        self.canPrivateHost.canHost(vcpus, memory, disks):
+            return True
+        return False
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
@@ -164,7 +167,7 @@ class CloudGateway(object):
     def scheduleTask(self, vcpus, memory, disks):
         '''decides if the task should be added to private or public cloud'''
         self.tasksList.append(task)
-        public = self.privateCloud.avgVcpusUsage >= 0.8 or not self.canPrivateHost.canHost()
+        public = not self.canPrivateHost(vcpus, memory, disks)
         if public:
             engine = self.publicCloud
         else:
