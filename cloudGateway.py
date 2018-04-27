@@ -77,7 +77,7 @@ class CloudEngine(object):
                 return True
         return False
 
-    def updateTaskUsage(self, vcpus, memory, disks, public=False, create=True):
+    def updateTaskUsage(self, vcpus, memory, disks, create=True):
         '''update average usage of cloud engine'''
 
         if create:
@@ -85,7 +85,12 @@ class CloudEngine(object):
             self.avgMemoryUsage += (memory / self.memory) / len(self.machineHeap)
             self.avgDisksUsage += (disks / self.disks) / len(self.machineHeap)
         else:
-            pass
+            self.avgVcpusUsage -= (vcpus / self.vcpus) / len(self.machineHeap)
+            self.avgMemoryUsage -= (memory / self.memory) / len(self.machineHeap)
+            self.avgDisksUsage -= (disks / self.disks) / len(self.machineHeap)
+            assert self.avgVcpusUsage >= 0, 'Average vcpu usage less than 0'
+            assert self.avgMemoryUsage >= 0, 'Average memory usage less than 0'
+            assert self.avgDisksUsage >= 0, 'Average disk usage less than 0'
 
     def removeMachine(self, name):
         '''remove the given machine'''
@@ -112,10 +117,7 @@ class Tasks(object):
     def create(self, vcpus, memory, disks, public=False):
         # code to create tasks
         gateway = CloudGateway()
-        if public:
-            engine = gateway.publicCloud
-        else:
-            engine = gateway.privateCloud
+        engine = gateway.publicCloud if public else gateway.privateCloud
         hostMachine = None
         for machine in engine.machineHeap:
             if machine.canHost(vcpus, memory, disks):
@@ -127,9 +129,11 @@ class Tasks(object):
         assert False, 'Task should be scheduled as canHost was checked for ' \
         'the engine before calling Tasks.create()'
 
-    # deleting given task
     def delete(self, index):
+    '''deleting given task and returns the engine task was deleted from'''
+        public = self.tasksList[index].public
         del self.tasksList[index]
+        return public
 
 @singleton
 class CloudGateway(object):
@@ -176,10 +180,7 @@ class CloudGateway(object):
     def scheduleTask(self, vcpus, memory, disks):
         '''decides if the task should be added to private or public cloud'''
         public = not self.canPrivateHost(vcpus, memory, disks)
-        if public:
-            engine = self.publicCloud
-        else:
-            engine = self.privateCloud
+        engine = self.publicCloud if public else self.privateCloud
         tasks = Tasks()
         tasks.create(vcpus, memory, disks, public)
         engine.updateTaskUsage(vcpus, memory, disks)
@@ -204,11 +205,14 @@ class CloudGateway(object):
     def deleteTask(self, index):
         '''delete the task at given index'''
         tasks = Tasks()
-        tasks.delete(index)
+        public = tasks.delete(index)
         if self.checkMigrateToPrivate():
             self.migrateToPrivate()
         if self.checkReorganisePublic():
             self.reorganisePublic()
+        
+        engine = self.publicCloud if public else self.privateCloud
+        engine.updateTaskUsage(vcpus, memory, disks)
         self.logAverageUsage()
 
 class RandomTaskGeneration:
