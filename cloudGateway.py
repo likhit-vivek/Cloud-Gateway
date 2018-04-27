@@ -42,19 +42,26 @@ class Machine(object):
         self.disksFree = disks
         self.vcpusFree = vcpus
 
+    def canHost(vcpus, memory, disks):
+        if self.memoryFree - memory >= 0.1 * self.memory and \
+        self.disksFree - disks >= 0.1 * self.disks and \
+        self.vcpusFree - vcpus >= 0.1 * self.vcpus:
+            return True
+
 class CloudEngine(object):
     def __init__(self, vcpus, memory, disks):
         '''We have homogeneous cloud'''
-        # Change this heap
         self.machineHeap = []
+        # Config of cloud
         self.vcpus = vcpus
         self.disks = disks
         self.memory = memory
         # incremental counter used for naming new machines
         self.idCounter = 0
-        self.avgMemory = 0
-        self.avgVcpu = 0
-        self.avgDisks = 0
+        # percentage average
+        self.avgMemoryUsage = 0
+        self.avgVcpusUsage = 0
+        self.avgDisksUsage = 0
 
     # adding machine to cloud
     def addServer(self):
@@ -63,12 +70,17 @@ class CloudEngine(object):
         heappush(self.machineHeap, (machine.memoryFree, machine))
 
     # check if machine can host the given task
-    def canHost(self, machine, task):
-        if machine.memoryFree - task.memory >= 0.1 * machine.memory and \
-        machine.disksFree - task.disks >= 0.1 * machine.disks and \
-        machine.vcpusFree - task.vcpus >= 0.1 * machine.vcpus:
-            return True
+    def canHost(self, vcpus, memory, disks):
+        for machine in machineHeap:
+            if machine.canHost(vcpus, memory, disks):
+                return True
         return False
+
+    def updateTaskUsage(self, vcpus, memory, disks, public=False):
+        '''update average usage of cloud engine'''
+        self.avgVcpusUsage += (vcpus / self.vcpus) / len(machineHeap)
+        self.avgMemoryUsage += (memory / self.memory) / len(machineHeap)
+        self.avgDisksUsage += (disks / self.disks) / len(machineHeap)
 
     def removeMachine(self, name):
         '''remove the given machine'''
@@ -78,13 +90,13 @@ class CloudEngine(object):
         heapify(self.machineHeap)
 
 class Task(object):
-    def __init__(self, name, vcpus, memory, disks, public=False):
+    def __init__(self, name, vcpus, memory, disks, machine, public=False):
         self.name = name
         self.vcpus = vcpus
         self.memory = memory
         self.disks = disks
         self.public = False
-        self.machine = None
+        self.machine = machine
 
 @singleton
 class Tasks(object):
@@ -94,7 +106,19 @@ class Tasks(object):
 
     def create(self, vcpus, memory, disks, public=False):
         # code to create tasks
-        task = Task(vcpus, memory, disks, public)
+        gateway = CloudGateway()
+        if public:
+            engine = gateway.publicCloud
+        else:
+            engine = gateway.privateCloud
+        hostMachine = None
+        for machine in engine.machineHeap:
+            if machine.canHost(vcpus, memory, disks):
+                hostMachine = machine
+                task = Task(vcpus, memory, disks, hostMachine, public)
+                return
+        assert False, 'Task should be scheduled as canHost was checked for ' \
+        'the engine before calling Tasks.create()'
 
     # deleting given task
     def delete(self, index):
@@ -129,7 +153,7 @@ class CloudGateway(object):
         '''returns the average CPU, disk and memory usage for public and private cloud'''
         pass
 
-    def canPrivateHost(self):
+    def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
         pass
 
@@ -139,14 +163,15 @@ class CloudGateway(object):
 
     def scheduleTask(self, vcpus, memory, disks):
         '''decides if the task should be added to private or public cloud'''
+        self.tasksList.append(task)
+        public = self.privateCloud.avgVcpusUsage >= 0.8 or not self.canPrivateHost.canHost()
         if public:
             engine = self.publicCloud
         else:
             engine = self.privateCloud
-        self.tasksList.append(task)
-        public = self.canPrivateHost()
         tasks = Tasks()
-        tasks.create(vcpus, memory, disks)
+        tasks.create(vcpus, memory, disks, public)
+        engine.updateTaskUsage(vcpus, memory, disks)
 
     def checkMigrateToPrivate(self):
         '''check if migration to private is required'''
