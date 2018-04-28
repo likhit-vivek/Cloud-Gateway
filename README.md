@@ -32,9 +32,13 @@ To handle any kind of workload, we are assuming we have unlimited resources in o
 #### Max and Min load
 Just like AWS, we are placing a threshold on the average usage of both private and public clouds to handle sudden spikes in the workload and also to increase efficiency. For example, if the private cloud usage crosses 80%, we are going to move some tasks to the public cloud, and if it goes under 50%, we are moving the tasks from the public cloud back to the private cloud. Additionally, if the usage in the public cloud goes under 50%, we are moving the tasks to only a few machines within the public, and stopping the machines which become empty, thus increasing the usage. We are also keeping track of each of the machines and ensuring that each machine has at least 10% of free resources at any point of time.
 
-#### Machine specs vs Task requirements
+#### Using Heaps for Defragmentation
 
-#### Using Heaps for defragmentation
+As you understand from reading the above, we are moving the tasks from private to public, public to private and within public itself. So, just assigning the tasks randomly to any machine leads to fragmentation. To prevent that, we are maintaining three separate heaps to store tasks in the decreasing order of their requirements and machines in the increasing order of their free resources, one for the private cloud and one for the public cloud. So, using the Heaps, we always try to assign the biggest task to the machine with the least available resources, thus preventing the inefficient use of machines.
+
+This method is not a complete solution but will be sufficient for our project because we made some assumptions on the machines' capacity and the size of the tasks in a way that counters fragmentation by design, as explained below.
+
+#### Machine specs vs Task requirements
 
 #### Migration back to Private cloud
 
