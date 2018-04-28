@@ -40,7 +40,10 @@ This method is not a complete solution but will be sufficient for our project be
 
 #### Machine specs vs Task requirements
 
-#### Migration back to Private cloud
+#### Private trumps Public
+We prefer to run the tasks in the private cloud rather than in the public cloud. This is a common assumption but it's an essential part of our design. For every new task that's created, our code always checks if it can be hosted in the private cloud before sending it to the public cloud. This is also the reason why tasks are sometimes moved back to the private cloud. For example, if some of the tasks that were running in the private cloud got deleted and the usage drops under 50%, we move some of the tasks from public cloud back into private cloud.
+
+This mechanism ensures the efficient use of machines in both the public and private clouds.
 
 ## Implementation
 
