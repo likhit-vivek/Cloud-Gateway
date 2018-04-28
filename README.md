@@ -15,12 +15,13 @@ We also understood how Azure implemented its horizontal and vertical auto-scalin
 
 ## Design Choices
 
-#### Full ownership
+#### Full Ownership
 We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves, unlike the case of using AWS, as it'll do all the optimization automatically and our project would be meaningless. 
 
 We are also assuming that we are using this cloud internally i.e. we are only dealing with the tasks from our employees, not our users. Although we are randomly generating the tasks, it's not completely random. We are using some constraints like growth rate, max size of a task with respect to machine capacity etc. So, it's only logical that we have a complete knowledge on the kind of workload we need to handle which is why we are using the cloud internally.
 
-#### Homogeneous machines
+#### Homogeneous Cloud
+One of the important choices we made is that, we are running a homogeneous datacenter i.e. We have all the software stack we need and all the machines are alike. That way it'll be easier to monitor the usage of each of the machines and prevent fragmentation when moving the tasks from one machine to the other, from private to public cloud or within the public cloud.
 
 #### Unlimited resources in Public cloud
 
@@ -31,3 +32,11 @@ We are also assuming that we are using this cloud internally i.e. we are only de
 #### Using Heaps for defragmentation
 
 #### Migration back to Private cloud
+
+## Implementation
+
+## Instructions
+
+## Lessons Learned and Conclusion
+
+## References
