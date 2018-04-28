@@ -45,3 +45,6 @@ Just like AWS, we are placing a threshold on the average usage of both private a
 ## Lessons Learned and Conclusion
 
 ## References
+* [Load-based Scaling in AWS](https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-autoscaling-loadbased.html)
+* [Auto-scaling in Azure](https://docs.microsoft.com/en-us/azure/architecture/best-practices/auto-scaling)
+* Our P1 code
