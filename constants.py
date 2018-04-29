@@ -6,9 +6,12 @@ memoryPrivate = 1952
 vcpuPublic = 64
 disksPublic = 1920
 memoryPublic = 1952
+minVcpuForTask = 1
 avgVcpuForTask = 4
 maxVcpuForTask = 8
+minMemForTask = 1
 maxMemForTask = 64
+minDiskForTask = 1
 maxDiskForTask = 64
 
 # other constants

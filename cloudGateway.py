@@ -216,9 +216,9 @@ class CloudGateway(object):
 class RandomTaskGeneration:
     def generateRandomTask(self):
         '''create random task for scheduling'''
-        memory = randint(1, 8)
-        disk = randint(1, 64)
-        vcpus = randint(1, 8)
+        memory = randint(constants.minMemForTask, constants.maxMemForTask)
+        disk = randint(constants.minDiskForTask, constants.maxDiskForTask)
+        vcpus = randint(constants.minVcpuForTask, constants.maxVcpuForTask)
         gateway = CloudGateway()
         gateway.scheduleTask(memory, disk, vcpus)
 
