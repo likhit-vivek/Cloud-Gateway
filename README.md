@@ -2,7 +2,7 @@
 Aditya Gujral (726004085), Piyush Bhatt (227002733), Likhit Vivek Chirumamilla (325001774)
 
 ## Timeline
-We worked for approximately 27 hrs over a span of 7 days from 25 Apr 2018 to 1 May 2018.
+We collectively worked for approximately 70-80 hrs over a span of 7 days from 25 Apr 2018 to 1 May 2018.
 
 ## Project Specification
 Our project focuses on implementing the seamless integration/transfer of tasks from a private cloud to a public cloud when the private cloud overloads over a specific limit. For this purpose, we are simulating a private cloud with a fixed number of homogeneous machines and created a script which generates tasks randomly to overload the private cloud. The usage of each of the machines as well as the average usage of the whole private cloud is being continuously monitored and as soon as the average usage goes over 80%, we are moving the tasks to one of the active machines in the public cloud. To reduce fragmentation, we are using Heaps to store the tasks and machines in an order, within the code, so that the tasks can be assigned/rearranged efficiently.
@@ -36,11 +36,14 @@ Just like AWS, we are placing a threshold on the average usage of both private a
 
 #### Using Heaps for Defragmentation
 
-As you understand from reading the above, we are moving the tasks from private to public, public to private and within public itself. So, just assigning the tasks randomly to any machine leads to fragmentation. To prevent that, we are maintaining three separate heaps to store tasks in the decreasing order of their requirements and machines in the increasing order of their free resources, one for the private cloud and one for the public cloud. So, using the Heaps, we always try to assign the biggest task to the machine with the least available resources, thus preventing the inefficient use of machines.
+As you understand from reading the above, we are moving the tasks from private to public, public to private and within public itself. So, just assigning the tasks randomly to any machine leads to fragmentation. To prevent that, we are maintaining three separate heaps to store tasks in the decreasing order of their requirements and machines in the increasing order of their free vcpus, one for the private cloud and one for the public cloud. So, using the Heaps, we always try to assign the biggest task to the machine with the least available vcpus, thus preventing the inefficient use of machines.
 
-This method is not a complete solution but will be sufficient for our project because we made some assumptions on the machines' capacity and the size of the tasks in a way that counters fragmentation by design, as explained below.
+Consider a simple scenario where we have two machines with 4 vcpus each. Let's say two tasks which require 2 vcpus were created. If we randomly assign one task to each machine and a third task which needs 3 vcpus gets generated, we need to start a third machine to host the task. Instead if we add the second task to the first machine itself, using our Heap machanism, we don't need to start a third machine for hosting the third task. This is not a practical example, but you can clearly understand why we need this defragmentation mechanism.
+
+You must have observed by now that we are using only vcpus to sort the machines. This, however, is sufficient for our project because we made some assumptions on the machines' capacity and the size of the tasks as explained below.
 
 #### Machine specs vs Task requirements
+
 
 #### Private trumps Public
 We prefer to run the tasks in the private cloud rather than in the public cloud. This is a common assumption but it's an essential part of our design. For every new task that's created, our code always checks if it can be hosted in the private cloud before sending it to the public cloud. This is also the reason why tasks are sometimes moved back to the private cloud. For example, if some of the tasks that were running in the private cloud got deleted and the usage drops under 50%, we move some of the tasks from public cloud back into private cloud.
@@ -51,7 +54,6 @@ This mechanism ensures the efficient use of machines in both the public and priv
 
 ## Instructions
 * Use python 2.7
-* Extract the project file and navigate to the folder in cmd (Windows)
 * Run ```python cloudGateway.py```
 
 ## Lessons Learned and Conclusion
