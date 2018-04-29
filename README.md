@@ -19,6 +19,9 @@ We also understood how Azure implemented its horizontal and vertical auto-scalin
 ## Design (Choices)
 
 ![Design](/Project2_Design.png)
+The diagram above is a subtle description of what our project is designed to do. Initially, tasks are generated randomly by our script and are hosted in the private cloud. New tasks keep getting generated and after the private cloud reaches the 80% threshold, any new task that's generated will be sent to the public cloud. The script also deletes the tasks randomly. So, after a certain point of time, you can expect the usage of the private cloud to go below 50%. Then, to maintain the efficiency, we are moving some of the tasks from public cloud back to the private cloud. The next step is to consolidate the remaining tasks in the public cloud and stop any machines that aren't running any tasks.
+
+Our project also outputs some graphs which will show the usage of the public and the private clouds over time, with respect to the generated tasks. Given below are some of our design choices and assumptions which will explain the project in more detail.
 
 #### Full Ownership
 We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves, unlike the case of using AWS, as it'll do all the optimization automatically and our project would be meaningless. 
