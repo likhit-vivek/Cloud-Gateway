@@ -3,7 +3,7 @@ from heapq import heappush, heappop, heapify
 import constants
 from copy import deepcopy
 
-logFile = open('cloudGateWayLog.txt', 'a')
+logFile = open('cloudGateWayLog.txt', 'w')
 # decorator function for creating singleton classes
 def singleton(_myClass):
     tasks = {}
@@ -54,7 +54,7 @@ class CloudEngine(object):
 
     def canHost(self, vcpus, memory, disks):
         '''check if machine can host the given task'''
-        for machine in self.machineHeap:
+        for _, machine in self.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 return True
         return False
@@ -76,16 +76,18 @@ class CloudEngine(object):
 
     def removeMachine(self, name):
         '''remove the given machine'''
-        for index, machine in enumerate(self.machineHeap):
+        for index, machineTuple in enumerate(self.machineHeap):
+            machine = machineTuple[1]
             if machine.name == name:
                 del self.machineHeap[index]
         heapify(self.machineHeap)
 
     def deleteFreeMachines(self):
         '''delete public cloud machine'''
-        for index, machine in enumerate(self.machineHeap):
+        for index, machineTuple in enumerate(self.machineHeap):
+            machine = machineTuple[1]
             if machine.vcpusFree == machine.vcpus:
-                del self.publicCloud.machineHeap[index]
+                del self.machineHeap[index]
         heapify(self.machineHeap)
 
 class Task(object):
@@ -108,7 +110,7 @@ class Tasks(object):
         gateway = CloudGateway()
         engine = gateway.publicCloud if public else gateway.privateCloud
         hostMachine = None
-        for machine in engine.machineHeap:
+        for _, machine in engine.machineHeap:
             if machine.canHost(vcpus, memory, disks):
                 hostMachine = machine
                 task = Task(self.idCounter, vcpus, memory, disks, hostMachine, public)
@@ -127,18 +129,16 @@ class CloudGateway(object):
     def __init__(self):
         self.publicCloud = CloudEngine(constants.vcpuPrivate, constants.memoryPrivate, constants.disksPrivate)
         self.privateCloud = CloudEngine(constants.vcpuPublic, constants.memoryPublic, constants.disksPublic)
-
+        # initialize the private cloud
+        for _ in range(constants.numPrivateMachines):
+            self.privateCloud.addServer()
+    
     def canPublicHost(self, vcpus, memory, disks):
         '''check if public cloud requires additional machine for task to be scheduled'''
         if self.publicCloud.avgVcpusUsage < constants.maxEngineUtilization and \
         self.publicCloud.canHost(vcpus, memory, disks):
             return True
         return False
-
-    def initialisePrivateCloud(self):
-        '''initialize the public cloud'''
-        for _ in range(constants.numPrivateMachines):
-            self.privateCloud.addServer()
 
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
@@ -184,7 +184,7 @@ class CloudGateway(object):
     def migrateToPrivate(self):
         '''migrate tasks to private cloud from public cloud'''
         tasks = Tasks()
-        for task in sorted(Tasks.tasksList):
+        for task in sorted(tasks.tasksList):
             if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
                 tasks.delete(task.name)
                 self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
@@ -193,7 +193,7 @@ class CloudGateway(object):
     def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
         tasks = Tasks()
-        sortedTasks = deepcopy(sorted(Tasks.tasksList))
+        sortedTasks = deepcopy(sorted(tasks.tasksList))
         for task in sortedTasks:
             if task.public:
                 tasks.delete(task.name)
@@ -225,7 +225,11 @@ class RandomTaskGeneration:
     def executeRandomTask(self):
         '''create or delete a random task'''
         deleteTask = True if randint(1, 100) <= constants.deleteWithProbability else False
+        
         tasks = Tasks()
+        if len(tasks.tasksList) == 0:
+            deleteTask = False
+            
         if deleteTask:
             numTasks = len(tasks.tasksList)
             deleteIndex = randint(0, numTasks - 1)
@@ -236,7 +240,12 @@ class RandomTaskGeneration:
 
 if __name__ == '__main__':
     print '\n*************CloudEngine gateway simulation*************\n'
-    interpreter = RandomTaskGeneration()
+    # starting cloud gateway
+    CloudGateway()
+    
+    taskGenerator = RandomTaskGeneration()
+    for operation in range(1000):
+        taskGenerator.executeRandomTask()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
     # Average CPU/Memory/Disk usage for both public and private cloud
