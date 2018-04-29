@@ -43,7 +43,7 @@ Consider a simple scenario where we have two machines with 4 vcpus each. Let's s
 You must have observed by now that we are using only vcpus to sort the machines. This, however, is sufficient for our project because we made some assumptions on the machines' capacity and the size of the tasks as explained below.
 
 #### Machine specs vs Task requirements
-
+We are using only one kind of machine, similar to xE.16x.Large used by AWS. It has 64 vcpus, 1952 GB RAM and 1920 GB of disk space. And we are creating the tasks in a constrained manner, where the average number of vcpus required for a task is 4, and a 32 GB of average RAM and disk space. Based on the number of vcpus, we can see that a machine cannot host more than 16 tasks, which will put a 512 MB upperbound on both the RAM and disk space for the tasks running on a single machine at any point of time. Since these bounds are much lower than what our machines can handle, we can sort the machines and assign the tasks based on just the vcpus.
 
 #### Private trumps Public
 We prefer to run the tasks in the private cloud rather than in the public cloud. This is a common assumption but it's an essential part of our design. For every new task that's created, our code always checks if it can be hosted in the private cloud before sending it to the public cloud. This is also the reason why tasks are sometimes moved back to the private cloud. For example, if some of the tasks that were running in the private cloud got deleted and the usage drops under 50%, we move some of the tasks from public cloud back into private cloud.
