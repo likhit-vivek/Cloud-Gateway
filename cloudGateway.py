@@ -128,8 +128,8 @@ class Tasks(object):
 @singleton
 class CloudGateway(object):
     def __init__(self):
-        self.publicCloud = CloudEngine(constants.vcpuPrivate, constants.memoryPrivate, constants.disksPrivate)
-        self.privateCloud = CloudEngine(constants.vcpuPublic, constants.memoryPublic, constants.disksPublic)
+        self.privateCloud = CloudEngine(constants.vcpuPrivate, constants.memoryPrivate, constants.disksPrivate)
+        self.publicCloud = CloudEngine(constants.vcpuPublic, constants.memoryPublic, constants.disksPublic)
         # initialize the private cloud
         for _ in range(constants.numPrivateMachines):
             self.privateCloud.addServer()
