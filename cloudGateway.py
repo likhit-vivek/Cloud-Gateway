@@ -1,3 +1,4 @@
+from __future__ import division
 from random import randint
 from heapq import heappush, heappop, heapify
 import constants
@@ -42,9 +43,9 @@ class CloudEngine(object):
         # incremental counter used for naming new machines
         self.idCounter = 0
         # percentage average
-        self.avgMemoryUsage = 0
-        self.avgVcpusUsage = 0
-        self.avgDisksUsage = 0
+        self.totalMemoryUsage = 0
+        self.totalVcpusUsage = 0
+        self.totalDisksUsage = 0
 
     def addServer(self):
         '''adding machine to cloud'''
@@ -63,16 +64,16 @@ class CloudEngine(object):
         '''update average usage of cloud engine'''
 
         if create:
-            self.avgVcpusUsage += (vcpus / self.vcpus) / len(self.machineHeap)
-            self.avgMemoryUsage += (memory / self.memory) / len(self.machineHeap)
-            self.avgDisksUsage += (disks / self.disks) / len(self.machineHeap)
+            self.totalVcpusUsage += (vcpus / self.vcpus)
+            self.totalMemoryUsage += (memory / self.memory)
+            self.totalDisksUsage += (disks / self.disks)
         else:
-            self.avgVcpusUsage -= (vcpus / self.vcpus) / len(self.machineHeap)
-            self.avgMemoryUsage -= (memory / self.memory) / len(self.machineHeap)
-            self.avgDisksUsage -= (disks / self.disks) / len(self.machineHeap)
-            assert self.avgVcpusUsage >= 0, 'Average vcpu usage less than 0'
-            assert self.avgMemoryUsage >= 0, 'Average memory usage less than 0'
-            assert self.avgDisksUsage >= 0, 'Average disk usage less than 0'
+            self.totalVcpusUsage -= (vcpus / self.vcpus)
+            self.totalMemoryUsage -= (memory / self.memory)
+            self.totalDisksUsage -= (disks / self.disks)
+            assert self.totalVcpusUsage >= 0, 'Total vcpu usage less than 0'
+            assert self.totalMemoryUsage >= 0, 'Total memory usage less than 0'
+            assert self.totalDisksUsage >= 0, 'Total disk usage less than 0'
 
     def removeMachine(self, name):
         '''remove the given machine'''
@@ -135,27 +136,34 @@ class CloudGateway(object):
     
     def canPublicHost(self, vcpus, memory, disks):
         '''check if public cloud requires additional machine for task to be scheduled'''
-        if self.publicCloud.avgVcpusUsage < constants.maxEngineUtilization and \
+        if self.publicCloud.totalVcpusUsage < constants.maxEngineUtilization and \
         self.publicCloud.canHost(vcpus, memory, disks):
             return True
         return False
 
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
-        if self.privateCloud.avgVcpusUsage < constants.maxEngineUtilization and \
+        if self.privateCloud.totalVcpusUsage < constants.maxEngineUtilization and \
         self.privateCloud.canHost(vcpus, memory, disks):
             return True
         return False
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
-        log = ' '.join(['Average private Cpu usage, ', str(self.privateCloud.avgVcpusUsage),
-                        ', Average private memory usage, ', str(self.privateCloud.avgMemoryUsage),
-                        ', Average private disks usage, ', str(self.privateCloud.avgDisksUsage),
-                        ', Average public Cpu usage, ', str(self.publicCloud.avgVcpusUsage),
-                        ', Average public memory usage, ', str(self.publicCloud.avgMemoryUsage),
-                        ', Average public disks usage, ', str(self.publicCloud.avgDisksUsage),
-                        ', Number of public machines, ', str(len(self.publicCloud.machineHeap))])
+        log = ' '.join(['Average private Cpu usage, ', 
+                        str(self.privateCloud.totalVcpusUsage / len(self.privateCloud.machineHeap)),
+                        ', Average private memory usage, ',
+                        str(self.privateCloud.totalMemoryUsage / len(self.privateCloud.machineHeap)),
+                        ', Average private disks usage, ',
+                        str(self.privateCloud.totalDisksUsage / len(self.privateCloud.machineHeap)),
+                        ', Average public Cpu usage, ',
+                        str(self.publicCloud.totalVcpusUsage / len(self.publicCloud.machineHeap)),
+                        ', Average public memory usage, ',
+                        str(self.publicCloud.totalMemoryUsage / len(self.publicCloud.machineHeap)),
+                        ', Average public disks usage, ',
+                        str(self.publicCloud.totalDisksUsage / len(self.publicCloud.machineHeap)),
+                        ', Number of public machines, ',
+                        str(len(self.publicCloud.machineHeap)), '\n'])
         logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
@@ -171,13 +179,13 @@ class CloudGateway(object):
 
     def checkMigrateToPrivate(self):
         '''check if migration to private is required'''
-        if self.privateCloud.avgVcpusUsage < constants.minEngineUtilization:
+        if self.privateCloud.totalVcpusUsage < constants.minEngineUtilization:
             return True
         return False
 
     def checkDefragPublic(self):
         '''check if reorganization tasks in public cloud'''
-        if self.publicCloud.avgVcpusUsage < constants.minEngineUtilization:
+        if self.publicCloud.totalVcpusUsage < constants.minEngineUtilization:
             return True
         return False
 
@@ -217,7 +225,7 @@ class RandomTaskGeneration:
     def generateRandomTask(self):
         '''create random task for scheduling'''
         memory = randint(constants.minMemForTask, constants.maxMemForTask)
-        disk = randint(constants.minDiskForTask, constants.maxDiskForTask)
+        disks = randint(constants.minDiskForTask, constants.maxDiskForTask)
         vcpus = randint(constants.minVcpuForTask, constants.maxVcpuForTask)
         gateway = CloudGateway()
         gateway.scheduleTask(vcpus, memory, disks)
