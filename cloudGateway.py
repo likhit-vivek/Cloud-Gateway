@@ -3,7 +3,7 @@ from heapq import heappush, heappop, heapify
 import constants
 from copy import deepcopy
 
-logFile = open('cloudGateWayLog.txt', 'w')
+logFile = open('cloudGatewayLog.txt', 'w')
 # decorator function for creating singleton classes
 def singleton(_myClass):
     tasks = {}
@@ -220,7 +220,7 @@ class RandomTaskGeneration:
         disk = randint(constants.minDiskForTask, constants.maxDiskForTask)
         vcpus = randint(constants.minVcpuForTask, constants.maxVcpuForTask)
         gateway = CloudGateway()
-        gateway.scheduleTask(memory, disk, vcpus)
+        gateway.scheduleTask(vcpus, memory, disks)
 
     def executeRandomTask(self):
         '''create or delete a random task'''
