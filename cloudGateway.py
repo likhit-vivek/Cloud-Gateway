@@ -64,13 +64,13 @@ class CloudEngine(object):
         '''update average usage of cloud engine'''
 
         if create:
-            self.totalVcpusUsage += (vcpus / self.vcpus)
-            self.totalMemoryUsage += (memory / self.memory)
-            self.totalDisksUsage += (disks / self.disks)
+            self.totalVcpusUsage += vcpus
+            self.totalMemoryUsage += memory
+            self.totalDisksUsage += disks
         else:
-            self.totalVcpusUsage -= (vcpus / self.vcpus)
-            self.totalMemoryUsage -= (memory / self.memory)
-            self.totalDisksUsage -= (disks / self.disks)
+            self.totalVcpusUsage -= vcpus
+            self.totalMemoryUsage -= memory
+            self.totalDisksUsage -= disks
             assert self.totalVcpusUsage >= 0, 'Total vcpu usage less than 0'
             assert self.totalMemoryUsage >= 0, 'Total memory usage less than 0'
             assert self.totalDisksUsage >= 0, 'Total disk usage less than 0'
@@ -150,20 +150,22 @@ class CloudGateway(object):
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
+        privateMachineLen = 1 if len(self.privateCloud.machineHeap) == 0 else len(self.privateCloud.machineHeap)
+        publicMachineLen = 1 if len(self.publicCloud.machineHeap) == 0 else len(self.publicCloud.machineHeap)
         log = ' '.join(['Average private Cpu usage, ', 
-                        str(self.privateCloud.totalVcpusUsage / len(self.privateCloud.machineHeap)),
+                        str(self.privateCloud.totalVcpusUsage / privateMachineLen),
                         ', Average private memory usage, ',
-                        str(self.privateCloud.totalMemoryUsage / len(self.privateCloud.machineHeap)),
+                        str(self.privateCloud.totalMemoryUsage / privateMachineLen),
                         ', Average private disks usage, ',
-                        str(self.privateCloud.totalDisksUsage / len(self.privateCloud.machineHeap)),
+                        str(self.privateCloud.totalDisksUsage / privateMachineLen),
                         ', Average public Cpu usage, ',
-                        str(self.publicCloud.totalVcpusUsage / len(self.publicCloud.machineHeap)),
+                        str(self.publicCloud.totalVcpusUsage / publicMachineLen),
                         ', Average public memory usage, ',
-                        str(self.publicCloud.totalMemoryUsage / len(self.publicCloud.machineHeap)),
+                        str(self.publicCloud.totalMemoryUsage / publicMachineLen),
                         ', Average public disks usage, ',
-                        str(self.publicCloud.totalDisksUsage / len(self.publicCloud.machineHeap)),
+                        str(self.publicCloud.totalDisksUsage / publicMachineLen),
                         ', Number of public machines, ',
-                        str(len(self.publicCloud.machineHeap)), '\n'])
+                        str(publicMachineLen), '\n'])
         logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
