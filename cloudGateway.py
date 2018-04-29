@@ -122,7 +122,7 @@ class Tasks(object):
 
     def delete(self, index):
         '''deleting given task and returns the engine task was deleted from'''
-        return self.tasksList.pop(index, None)
+        return self.tasksList.pop(index)
 
 @singleton
 class CloudGateway(object):
@@ -149,13 +149,13 @@ class CloudGateway(object):
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
-        log = ' '.join(['Average private Cpu usage, ', self.privateCloud.avgVcpusUsage,
-                        ', Average private memory usage, ', self.privateCloud.avgMemoryUsage,
-                        ', Average private disks usage, ', self.privateCloud.avgDisksUsage,
-                        ', Average public Cpu usage, ', self.publicCloud.avgVcpusUsage,
-                        ', Average public memory usage, ', self.publicCloud.avgMemoryUsage,
-                        ', Average public disks usage, ', self.publicCloud.avgDisksUsage,
-                        ', Number of public machines, ', len(self.publicCloud.machineHeap)])
+        log = ' '.join(['Average private Cpu usage, ', str(self.privateCloud.avgVcpusUsage),
+                        ', Average private memory usage, ', str(self.privateCloud.avgMemoryUsage),
+                        ', Average private disks usage, ', str(self.privateCloud.avgDisksUsage),
+                        ', Average public Cpu usage, ', str(self.publicCloud.avgVcpusUsage),
+                        ', Average public memory usage, ', str(self.publicCloud.avgMemoryUsage),
+                        ', Average public disks usage, ', str(self.publicCloud.avgDisksUsage),
+                        ', Number of public machines, ', str(len(self.publicCloud.machineHeap))])
         logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
