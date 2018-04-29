@@ -16,7 +16,9 @@ We had to consider the issue of fragmentation and understand how to use Heaps to
 
 We also understood how Azure implemented its horizontal and vertical auto-scaling but felt that the AWS model suits our project better and decided on similar design choices.
 
-## Design Choices
+## Design (Choices)
+
+![Design](/Project2_Design.png)
 
 #### Full Ownership
 We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves, unlike the case of using AWS, as it'll do all the optimization automatically and our project would be meaningless. 
