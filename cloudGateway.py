@@ -1,6 +1,7 @@
 from random import randint
 from heapq import heappush, heappop, heapify
 import constants
+from copy import deepcopy
 
 logFile = open('cloudGateWayLog.txt', 'a')
 # decorator function for creating singleton classes
@@ -75,9 +76,16 @@ class CloudEngine(object):
 
     def removeMachine(self, name):
         '''remove the given machine'''
-        for i, machine in enumerate(self.machineHeap):
+        for index, machine in enumerate(self.machineHeap):
             if machine.name == name:
-                del self.machineHeap[i]
+                del self.machineHeap[index]
+        heapify(self.machineHeap)
+
+    def deleteFreeMachines(self):
+        '''delete public cloud machine'''
+        for index, machine in enumerate(self.machineHeap):
+            if machine.vcpusFree == machine.vcpus:
+                del self.publicCloud.machineHeap[index]
         heapify(self.machineHeap)
 
 class Task(object):
@@ -127,10 +135,6 @@ class CloudGateway(object):
             return True
         return False
 
-    def deletePublicMachine(self):
-        '''delete public cloud machine'''
-        pass
-
     def initialisePrivateCloud(self):
         '''initialize the public cloud'''
         for _ in range(constants.numPrivateMachines):
@@ -150,7 +154,8 @@ class CloudGateway(object):
                         ', Average private disks usage, ', self.privateCloud.avgDisksUsage,
                         ', Average public Cpu usage, ', self.publicCloud.avgVcpusUsage,
                         ', Average public memory usage, ', self.publicCloud.avgMemoryUsage,
-                        ', Average public disks usage, ', self.publicCloud.avgDisksUsage])
+                        ', Average public disks usage, ', self.publicCloud.avgDisksUsage,
+                        ', Number of public machines, ', len(self.publicCloud.machineHeap)])
         logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
@@ -178,11 +183,22 @@ class CloudGateway(object):
 
     def migrateToPrivate(self):
         '''migrate tasks to private cloud from public cloud'''
-        pass
+        tasks = Tasks()
+        for task in sorted(Tasks.tasksList):
+            if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
+                tasks.delete(task.name)
+                self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
+                tasks.create(task.vcpus, task.memory, task.disks, public=False)
 
     def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
-        pass
+        tasks = Tasks()
+        sortedTasks = deepcopy(sorted(Tasks.tasksList))
+        for task in sortedTasks:
+            if task.public:
+                tasks.delete(task.name)
+                tasks.create(task.vcpus, task.memory, task.disks, public=True)
+        self.publicCloud.deleteFreeMachines()
 
     def deleteTask(self, index):
         '''delete the task at given index'''
