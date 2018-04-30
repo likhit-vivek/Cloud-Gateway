@@ -66,7 +66,7 @@ This mechanism ensures the efficient use of machines in both the public and priv
 * Understood more about P1 and the purpose of each of its commands
 * Improved our report writing skills
 
-We worked really hard on this project and tried to make it as practical and robust as possible and we think it can be extended as a research project in the future. We are thankful to the instructors for letting us choose our own project and for making this course really engaging.
+We worked really hard on this project and tried to make it as robust as possible and we think it can be extended as a research project in the future as it has some practical applications. We are thankful to the instructors for letting us choose our own project and for making this course really engaging.
 
 ## References
 * [Load-based Scaling in AWS](https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-autoscaling-loadbased.html)
