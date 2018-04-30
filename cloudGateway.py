@@ -156,20 +156,13 @@ class CloudGateway(object):
         '''log the average CPU, disk and memory usage for public and private cloud'''
         privateMachineLen = len(self.privateCloud.machineHeap)
         publicMachineLen = len(self.publicCloud.machineHeap)
-        log = ' '.join(['Average private Cpu usage, ', 
-                        str(self.privateCloud.totalVcpusUsage / privateMachineLen),
-                        ', Average private memory usage, ',
-                        str(self.privateCloud.totalMemoryUsage / privateMachineLen),
-                        ', Average private disks usage, ',
-                        str(self.privateCloud.totalDisksUsage / privateMachineLen),
-                        ', Average public Cpu usage, ',
-                        str(self.publicCloud.totalVcpusUsage / publicMachineLen),
-                        ', Average public memory usage, ',
-                        str(self.publicCloud.totalMemoryUsage / publicMachineLen),
-                        ', Average public disks usage, ',
-                        str(self.publicCloud.totalDisksUsage / publicMachineLen),
-                        ', Number of public machines, ',
-                        str(publicMachineLen), '\n'])
+        log = ' '.join([str(self.privateCloud.totalVcpusUsage / privateMachineLen),
+                        ', ', str(self.privateCloud.totalMemoryUsage / privateMachineLen),
+                        ', ', str(self.privateCloud.totalDisksUsage / privateMachineLen),
+                        ', ', str(self.publicCloud.totalVcpusUsage / publicMachineLen),
+                        ', ', str(self.publicCloud.totalMemoryUsage / publicMachineLen),
+                        ', ', str(self.publicCloud.totalDisksUsage / publicMachineLen),
+                        ', ', str(publicMachineLen), '\n'])
         logFile.write(log)
 
     def scheduleTask(self, vcpus, memory, disks):
@@ -203,6 +196,7 @@ class CloudGateway(object):
                 tasks.delete(task.name)
                 self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
                 tasks.create(task.vcpus, task.memory, task.disks, public=False)
+                self.privateCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, True)
 
     def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
@@ -256,8 +250,16 @@ if __name__ == '__main__':
     print '\n*************CloudEngine gateway simulation*************\n'
     # starting cloud gateway
     CloudGateway()
+    log = ' '.join(['Average private Cpu usage, ', 
+                    'Average private memory usage, ',
+                    'Average private disks usage, ',
+                    'Average public Cpu usage, ',
+                    'Average public memory usage, ',
+                    'Average public disks usage, ',
+                    'Number of public machines\n'])
+    logFile.write(log)
     taskGenerator = RandomTaskGeneration()
-    for operation in range(100000):
+    for operation in range(10000):
         taskGenerator.executeRandomTask()
     taskGenerator = RandomTaskGeneration()
     constants.deleteWithProbability = 60
