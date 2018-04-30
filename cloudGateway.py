@@ -191,7 +191,7 @@ class CloudGateway(object):
     def migrateToPrivate(self):
         '''migrate tasks to private cloud from public cloud'''
         tasks = Tasks()
-        for task in sorted(tasks.tasksList):
+        for task in sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True):
             if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
                 tasks.delete(tasks.taskList.index(task.name))
                 self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
@@ -201,7 +201,7 @@ class CloudGateway(object):
     def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
         tasks = Tasks()
-        sortedTasks = deepcopy(sorted(tasks.tasksList))
+        sortedTasks = deepcopy(sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True))
         for task in sortedTasks:
             if task.public:
                 tasks.delete(tasks.taskList.index(task.name))
