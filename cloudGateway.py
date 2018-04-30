@@ -4,7 +4,7 @@ from heapq import heappush, heappop, heapify
 import constants
 from copy import deepcopy
 
-logFile = open('cloudGatewayLog.txt', 'w')
+logFile = open('cloudGatewayLog.csv', 'w')
 # decorator function for creating singleton classes
 def singleton(_myClass):
     tasks = {}
@@ -85,6 +85,8 @@ class CloudEngine(object):
 
     def deleteFreeMachines(self):
         '''delete public cloud machine'''
+        if len(self.machineHeap) <= 1:
+            return
         for index, machineTuple in enumerate(self.machineHeap):
             machine = machineTuple[1]
             if machine.vcpusFree == machine.vcpus:
@@ -133,25 +135,27 @@ class CloudGateway(object):
         # initialize the private cloud
         for _ in range(constants.numPrivateMachines):
             self.privateCloud.addServer()
+        # initialize the public cloud
+        self.publicCloud.addServer()
     
     def canPublicHost(self, vcpus, memory, disks):
         '''check if public cloud requires additional machine for task to be scheduled'''
-        if self.publicCloud.totalVcpusUsage < constants.maxEngineUtilization and \
+        if self.publicCloud.totalVcpusUsage / len(self.publicCloud.machineHeap) < constants.maxEngineUtilization and \
         self.publicCloud.canHost(vcpus, memory, disks):
             return True
         return False
 
     def canPrivateHost(self, vcpus, memory, disks):
         '''return true if average usage cpu usage of private is below threshold'''
-        if self.privateCloud.totalVcpusUsage < constants.maxEngineUtilization and \
+        if self.privateCloud.totalVcpusUsage / len(self.privateCloud.machineHeap) < constants.maxEngineUtilization and \
         self.privateCloud.canHost(vcpus, memory, disks):
             return True
         return False
 
     def logAverageUsage(self):
         '''log the average CPU, disk and memory usage for public and private cloud'''
-        privateMachineLen = 1 if len(self.privateCloud.machineHeap) == 0 else len(self.privateCloud.machineHeap)
-        publicMachineLen = 1 if len(self.publicCloud.machineHeap) == 0 else len(self.publicCloud.machineHeap)
+        privateMachineLen = len(self.privateCloud.machineHeap)
+        publicMachineLen = len(self.publicCloud.machineHeap)
         log = ' '.join(['Average private Cpu usage, ', 
                         str(self.privateCloud.totalVcpusUsage / privateMachineLen),
                         ', Average private memory usage, ',
@@ -181,13 +185,13 @@ class CloudGateway(object):
 
     def checkMigrateToPrivate(self):
         '''check if migration to private is required'''
-        if self.privateCloud.totalVcpusUsage < constants.minEngineUtilization:
+        if self.privateCloud.totalVcpusUsage / len(self.privateCloud.machineHeap) < constants.minEngineUtilization:
             return True
         return False
 
     def checkDefragPublic(self):
         '''check if reorganization tasks in public cloud'''
-        if self.publicCloud.totalVcpusUsage < constants.minEngineUtilization:
+        if self.publicCloud.totalVcpusUsage / len(self.publicCloud.machineHeap) < constants.minEngineUtilization:
             return True
         return False
 
