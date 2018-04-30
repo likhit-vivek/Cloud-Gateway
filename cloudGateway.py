@@ -99,7 +99,7 @@ class Task(object):
         self.vcpus = vcpus
         self.memory = memory
         self.disks = disks
-        self.public = False
+        self.public = public
         self.machine = machine
 
 @singleton
@@ -198,12 +198,15 @@ class CloudGateway(object):
     def migrateToPrivate(self):
         '''migrate tasks to private cloud from public cloud'''
         tasks = Tasks()
-        for task in sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True):
+        sortedTasks = deepcopy(sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True))
+        for task in sortedTasks:
             if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
-                tasks.delete(tasks.tasksList.index(task.name))
-                self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
-                tasks.create(task.vcpus, task.memory, task.disks, public=False)
-                self.privateCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, True)
+                for index, x in enumerate(tasks.tasksList):
+                    if x.name == task.name:
+                        tasks.delete(index)
+                        self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
+                        tasks.create(task.vcpus, task.memory, task.disks, public=False)
+                        self.privateCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, True)
 
     def defragPublic(self):
         '''reorganize tasks in public cloud to increase average usage'''
@@ -211,8 +214,10 @@ class CloudGateway(object):
         sortedTasks = deepcopy(sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True))
         for task in sortedTasks:
             if task.public:
-                tasks.delete(tasks.tasksList.index(task.name))
-                tasks.create(task.vcpus, task.memory, task.disks, public=True)
+                for index, x in enumerate(tasks.tasksList):
+                    if x.name == task.name:
+                        tasks.delete(index)
+                        tasks.create(task.vcpus, task.memory, task.disks, public=True)
         self.publicCloud.deleteFreeMachines()
 
     def deleteTask(self, index):
