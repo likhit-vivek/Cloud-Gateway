@@ -24,7 +24,7 @@ The diagram above is a subtle description of what our project is designed to do.
 Given below are some of our design choices and assumptions which will explain the project in more detail.
 
 #### Full Ownership
-We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves, unlike the case of using AWS, as it'll do all the optimization automatically and our project would be meaningless. 
+We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves. If we use AWS, it'll do all the optimization automatically and our project would be meaningless. 
 
 We are also assuming that we are using this cloud internally i.e. we are only dealing with the tasks from our employees, not our users. Although we are randomly generating the tasks, it's not completely random. We are using some constraints like growth rate, max size of a task with respect to machine capacity etc. So, it's only logical that we have a complete knowledge on the kind of workload we need to handle which is why we are using the cloud internally.
 
@@ -60,6 +60,13 @@ This mechanism ensures the efficient use of machines in both the public and priv
 * Run ```python cloudGateway.py```
 
 ## Lessons Learned and Conclusion
+* Familiarized ourselves with Object Oriented Principles in Python
+* Gained knowledge on how AWS does the load-balancing in its public cloud
+* Understood the reason for fragmentation and dealt with it successfully
+* Understood more about P1 and the purpose of each of its commands
+* Improved our report writing skills
+
+We worked really hard on this project and tried to make it as practical and robust as possible and we think it can be extended as a research project in the future.
 
 ## References
 * [Load-based Scaling in AWS](https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-autoscaling-loadbased.html)
