@@ -15,7 +15,7 @@ minDiskForTask = 1
 maxDiskForTask = 64
 
 # other constants
-deleteWithProbability = 10 # equivalent to 0.45
-maxUtililizationPerMachine = 0.9 # equivalent to 90%
-maxEngineUtilization = 0.8
-minEngineUtilization = 0.5
+deleteWithProbability = 30 # equivalent to 0.45
+maxUtililizationPerMachine = 0.9 * 64 # equivalent to 90%
+maxEngineUtilization = 0.8 * 64
+minEngineUtilization = 0.5 * 64
