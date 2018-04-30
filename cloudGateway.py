@@ -193,7 +193,7 @@ class CloudGateway(object):
         tasks = Tasks()
         for task in sorted(tasks.tasksList):
             if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
-                tasks.delete(task.name)
+                tasks.delete(tasks.taskList.index(task.name))
                 self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
                 tasks.create(task.vcpus, task.memory, task.disks, public=False)
                 self.privateCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, True)
@@ -204,7 +204,7 @@ class CloudGateway(object):
         sortedTasks = deepcopy(sorted(tasks.tasksList))
         for task in sortedTasks:
             if task.public:
-                tasks.delete(task.name)
+                tasks.delete(tasks.taskList.index(task.name))
                 tasks.create(task.vcpus, task.memory, task.disks, public=True)
         self.publicCloud.deleteFreeMachines()
 
