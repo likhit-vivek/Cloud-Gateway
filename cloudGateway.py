@@ -256,9 +256,12 @@ if __name__ == '__main__':
     print '\n*************CloudEngine gateway simulation*************\n'
     # starting cloud gateway
     CloudGateway()
-    
     taskGenerator = RandomTaskGeneration()
-    for operation in range(1000):
+    for operation in range(100000):
+        taskGenerator.executeRandomTask()
+    taskGenerator = RandomTaskGeneration()
+    constants.deleteWithProbability = 60
+    for operation in range(10000):
         taskGenerator.executeRandomTask()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
