@@ -119,12 +119,19 @@ class Tasks(object):
                 task = Task(self.idCounter, vcpus, memory, disks, hostMachine, public)
                 self.tasksList.append(task)
                 self.idCounter += 1
+                
+                machine.vcpusFree -= vcpus
+                machine.memoryFree -= memory
+                machine.disksFree -= disks
                 return
         assert False, 'Task should be scheduled as canHost was checked for ' \
         'the engine before calling Tasks.create()'
 
     def delete(self, index):
         '''deleting given task and returns the engine task was deleted from'''
+        self.tasksList[index].machine.vcpusFree += self.tasksList[index].vcpus
+        self.tasksList[index].machine.memoryFree += self.tasksList[index].memory
+        self.tasksList[index].machine.disksFree += self.tasksList[index].disks
         return self.tasksList.pop(index)
 
 @singleton
@@ -193,7 +200,7 @@ class CloudGateway(object):
         tasks = Tasks()
         for task in sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True):
             if task.public and self.canPrivateHost(task.vcpus, task.memory, task.disks):
-                tasks.delete(tasks.taskList.index(task.name))
+                tasks.delete(tasks.tasksList.index(task.name))
                 self.publicCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, False)
                 tasks.create(task.vcpus, task.memory, task.disks, public=False)
                 self.privateCloud.updateTaskUsage(task.vcpus, task.memory, task.disks, True)
@@ -204,7 +211,7 @@ class CloudGateway(object):
         sortedTasks = deepcopy(sorted(tasks.tasksList, key=lambda x: x.vcpus, reverse=True))
         for task in sortedTasks:
             if task.public:
-                tasks.delete(tasks.taskList.index(task.name))
+                tasks.delete(tasks.tasksList.index(task.name))
                 tasks.create(task.vcpus, task.memory, task.disks, public=True)
         self.publicCloud.deleteFreeMachines()
 
