@@ -1,20 +1,27 @@
 # Cloud Gateway
-Aditya Gujral (726004085), Piyush Bhatt (227002733), Likhit Vivek Chirumamilla (325001774)
+Aditya Gujral (726004085)
+
+Likhit Vivek Chirumamilla (325001774)
+
+Piyush Bhatt (227002733)
 
 ## Time spent
 * We collectively worked for approximately 110 hrs for project 2.
 * Approximately 30 collective hours were spent in planning, design and discussion about the project. This includes the time we spend for the initial project proposal.
-* Approximately 60 collective hours were spend in coding and debugging.
+* Approximately 60 collective hours were spent in coding and debugging.
 * Around 20 collective hours were spent in analyzing the results and making the report.
+* As suggested in our Software Engineering class, we followed Pair Programming for the development of the project.
 * Late days - Aditya and Piyush had 4 late days each, and hence we have used 4 late days.
 
 ## Project Specification
-Our project focuses on implementing the seamless integration/transfer of tasks from a private cloud to a public cloud when the private cloud overloads over a specific limit. For this purpose, we are simulating a private cloud with a fixed number of homogeneous machines and created a script which generates tasks randomly to overload the private cloud. The usage of each of the machines as well as the average usage of the whole private cloud is being continuously monitored and as soon as the average resource usage goes over 80%, we are moving the tasks to one of the active machines in the public cloud. To reduce fragmentation, we are using Heaps to store the tasks and machines in an order, within the code, so that the tasks can be assigned/rearranged efficiently.
+Our project focuses on implementing the seamless integration/transfer of tasks from a private cloud to a public cloud when the private cloud overloads over a specific limit. For this purpose, we are simulating a private cloud with a fixed number of homogeneous machines and created a script which generates tasks randomly to overload the private cloud.
 
-This kind of hybrid cloud service will be really useful in solving the problem of load balancing during peak times.
+The usage of each of the machines as well as the average usage of the whole private cloud is being continuously monitored and as soon as the average resource usage goes over 80%, we are moving the tasks to one of the active machines in the public cloud. To reduce fragmentation, we are using Heaps to store the tasks and machines in an order, within the code, so that the tasks can be assigned/rearranged efficiently.
+
+This kind of hybrid cloud service will be really useful in analysing and solving the problem of load balancing during peak times. Moreover, the project can be extended to use research benchmarks by replacing the `RandomTaskGeneration` module with the parser for creating tasks based on the benchmarks.
 
 ## Background Research
-We looked at how AWS is using load-based instances to rapidly start or stop machines and how Amazon CloudWatch is being used to continuously monitor the workload metrics like average CPU usage and Memory consumption to upscale and downscale automatically in response to the varying input traffic. Our project is also implemented similarly, as we are balancing the load in our private cloud in a similar way as AWS does in its public cloud. The addition difference is that we trying to efficiently manage both private and public cloud usage.
+We looked at how AWS is using load-based instances to rapidly start or stop machines and how Amazon CloudWatch is being used to continuously monitor the workload metrics like average CPU usage and Memory consumption to upscale and downscale automatically in response to the varying input traffic. Our project is also implemented similarly as we are balancing the load in our private cloud as AWS does in its public cloud. We manage efficient use of both private and public cloud, instead of just the public cloud.
 
 We had to consider the issue of fragmentation and understand how to use Heaps to handle the proper assignment and rearrangement of tasks.
 
