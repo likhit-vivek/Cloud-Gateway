@@ -5,7 +5,7 @@ Aditya Gujral (726004085), Piyush Bhatt (227002733), Likhit Vivek Chirumamilla (
 * We collectively worked for approximately 110 hrs for project 2.
 * Approximately 30 collective hours were spent in planning, design and discussion about the project. This includes the time we spend for the initial project proposal.
 * Approximately 60 collective hours were spend in coding and debugging.
-* Around 20 collective hours were spend in analyzing the results and making the report.
+* Around 20 collective hours were spent in analyzing the results and making the report.
 
 ## Project Specification
 Our project focuses on implementing the seamless integration/transfer of tasks from a private cloud to a public cloud when the private cloud overloads over a specific limit. For this purpose, we are simulating a private cloud with a fixed number of homogeneous machines and created a script which generates tasks randomly to overload the private cloud. The usage of each of the machines as well as the average usage of the whole private cloud is being continuously monitored and as soon as the average usage goes over 80%, we are moving the tasks to one of the active machines in the public cloud. To reduce fragmentation, we are using Heaps to store the tasks and machines in an order, within the code, so that the tasks can be assigned/rearranged efficiently.
@@ -27,7 +27,7 @@ The diagram above is a subtle description of what our project is designed to do.
 Given below are some of our design choices and assumptions which will explain the project in more detail.
 
 #### Full Ownership
-We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves. If we use AWS, it'll do all the optimization automatically and our project would limit the scope of our project. 
+We are assuming that we own both the private and the public cloud so that, we are responsible for taking care of all the load-balancing and defragmentation ourselves. If we use AWS, it'll do all the optimization automatically and that would limit the scope of our project. 
 
 Although we are randomly generating the tasks, it's not completely random. We are using some constraints like growth rate, max size of a task with respect to machine capacity etc. So, it's only logical that we have a complete knowledge on the kind of workload we need to handle which is why we are using the cloud internally.
 
@@ -90,7 +90,7 @@ Here, the number of tasks start to decrease after 100000, but again increase aft
 * Gained knowledge on how AWS does the load-balancing in its public cloud
 * Understood the reason for fragmentation and dealt with it successfully
 * Understood more about P1 and the purpose of each of its commands
-* Familiarized ourselves with Object Oriented Principles in Python
+* Familiarized ourselves with Object Oriented Principles and Design Patterns in Python
 
 We worked really hard on this project and tried to make it as robust as possible and we think it can be extended as a research project in the future as it has some practical applications. We are thankful to the instructors for letting us choose our own project and for the continous feedback and guidance.
 
