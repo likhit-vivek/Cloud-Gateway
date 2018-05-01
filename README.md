@@ -18,7 +18,7 @@ We also understood how Azure implemented its horizontal and vertical auto-scalin
 
 ## Design (Choices)
 
-![Design](/Project2_Design.png)
+![Design](Project2_Design.png)
 The diagram above is a subtle description of what our project is designed to do. Initially, tasks are generated randomly by our script and are hosted in the private cloud. New tasks keep getting generated and after the private cloud reaches the 80% threshold, any new task that's generated will be sent to the public cloud. The script also deletes the tasks randomly. So, after a certain point of time, you can expect the usage of the private cloud to go below 50%. Then, to maintain the efficiency, we are moving some of the tasks from public cloud back to the private cloud. The next step is to consolidate the remaining tasks in the public cloud and stop any machines that aren't running any tasks.
 
 Given below are some of our design choices and assumptions which will explain the project in more detail.
@@ -61,6 +61,17 @@ This mechanism ensures the efficient use of machines in both the public and priv
 * Use python 2.7
 * Run ```python cloudGateway.py```
 
+## Results
+![Design](/plotIncDec/numMachines.png) | ![Design](/plotIncDec/averageCpuUsage.png)
+-------------------------------------- | --------------------------------------
+
+In the first case, till 100000 iterations, we are generating and deleting the tasks with 52% and 48% respectively. As expected, the public machines are not increasing initially as all the tasks are going into the private cloud. And when the private reaches the 80% usage, new machines are started in the public cloud, and their number keeps on increasing to accomodate the new tasks until 100000 iterations. Then we increase the rate of deletion of the tasks to 60% and the number of public machines starts decreasing.
+
+Coming to the CPU usage, the usage in the private cloud keeps increasing until it reaches 80% and then stays the same until all the tasks get deleted. This constant usage is because we are moving all the new tasks to the public cloud. When we start deleting the tasks after 100000 iterations, we are moving the tasks from public back to private to maintain a constant usage of 80%. This is also the reason why you can see the fluctuations for the cpu usage in the public cloud at the end.
+
+![Design](/pltIncDecInc/numMachines.png) | ![Design](/pltIncDecInc/averageCpuUsage.png)
+-------------------------------------- | --------------------------------------
+
 ## Lessons Learned and Conclusion
 * Familiarized ourselves with Object Oriented Principles in Python
 * Gained knowledge on how AWS does the load-balancing in its public cloud
@@ -73,4 +84,5 @@ We worked really hard on this project and tried to make it as robust as possible
 ## References
 * [Load-based Scaling in AWS](https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-autoscaling-loadbased.html)
 * [Auto-scaling in Azure](https://docs.microsoft.com/en-us/azure/architecture/best-practices/auto-scaling)
+* [PyCallGraph](http://pycallgraph.readthedocs.io/en/master/)
 * Our P1 code
