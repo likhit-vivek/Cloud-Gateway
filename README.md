@@ -54,8 +54,15 @@ We prefer to run the tasks in the private cloud rather than in the public cloud.
 This mechanism ensures the efficient use of machines in both the public and private clouds.
 
 ## Implementation
+**To see the visual representation of the architecture please visit below link (Too large to be included in this document)**
 [Right click here](http://people.tamu.edu/~pbhatt/assets/images/pycallgraph.png) and open the below implementation diagram in a new tab for better viewing.
 ![Design](pycallgraph.png)
+The above image shows the design and calling structure of the overall code. The design can be understood in terms of following modules:
+* **Task Class:** The object of this class is equivalent to an "instance" in project P1. Each object of this class stores the attributes of that instance - name, vcpus, memory, disks, machine in which it is scheduled, and where is its parent machine located - in the public cloud or the private cloud. 
+* **Tasks Class:** This is a singleton class which acts as a manager for the tasks running in the system (both private and public cloud). This class deals with the creation and deletion of the tasks in the system, while managing the free meemory, vcpus and disks.
+* **Machine Class:** Each machine in the private and the public cloud has the same configuration. This functionality of this class is similar to that of Machine explained in project P1. Besides storing the information about name, vcpus, memory and disks, an object of this class also stores the available free memeory, disks and vcpus for scheduling new tasks. Moreover, whether a machine can host an incoming task or not can be checked by calling its _canHost(...)_ function.
+* **CloudEngine Class:** An object of this class represents a manager for a cloud. We are managing two objects of this class in our project, one for our Public Cloud and another for our Private Cloud. This manager class provides functionality to add machine (server) to the cloud, remove a machine from the cloud and check if there is any machine in the cloud that can host the new incoming task. 
+* **CloudGateway:** This is a singleton class which manages the overall scheduling and deletion of the tasks while providing optimum utilization, manages the migrations between public and private cloud and attempts to keep the public and private cloud defragmented. All the migrations and the attempts of defragmentation are done with a level of abstraction, each tasks is assigned as if it is being done on a single machine.
 
 ## Instructions
 * Use python 2.7
