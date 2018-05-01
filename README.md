@@ -54,6 +54,8 @@ We prefer to run the tasks in the private cloud rather than in the public cloud.
 This mechanism ensures the efficient use of machines in both the public and private clouds.
 
 ## Implementation
+[Right click here](http://people.tamu.edu/~pbhatt/assets/images/pycallgraph.png) and open the below implementation diagram in a new tab for better viewing.
+![Design](/pycallgraph.png)
 
 ## Instructions
 * Use python 2.7
