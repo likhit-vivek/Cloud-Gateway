@@ -62,15 +62,17 @@ This mechanism ensures the efficient use of machines in both the public and priv
 * Run ```python cloudGateway.py```
 
 ## Results
-![Design](/plotIncDec/numMachines.png) | ![Design](/plotIncDec/averageCpuUsage.png)
+![Design](plotIncDec-numMachines.png) | ![Design](plotIncDec-averageCpuUsage.png)
 -------------------------------------- | --------------------------------------
 
 In the first case, till 100000 iterations, we are generating and deleting the tasks with 52% and 48% respectively. As expected, the public machines are not increasing initially as all the tasks are going into the private cloud. And when the private reaches the 80% usage, new machines are started in the public cloud, and their number keeps on increasing to accomodate the new tasks until 100000 iterations. Then we increase the rate of deletion of the tasks to 60% and the number of public machines starts decreasing.
 
 Coming to the CPU usage, the usage in the private cloud keeps increasing until it reaches 80% and then stays the same until all the tasks get deleted. This constant usage is because we are moving all the new tasks to the public cloud. When we start deleting the tasks after 100000 iterations, we are moving the tasks from public back to private to maintain a constant usage of 80%. This is also the reason why you can see the fluctuations for the cpu usage in the public cloud at the end.
 
-![Design](/pltIncDecInc/numMachines.png) | ![Design](/pltIncDecInc/averageCpuUsage.png)
+![Design](pltIncDecInc-numMachines.png) | ![Design](pltIncDecInc-averageCpuUsage.png)
 -------------------------------------- | --------------------------------------
+
+Here, the number of tasks start to decrease after 100000, but again increase after 110000 and the graphs still show the expected behavior.
 
 ## Lessons Learned and Conclusion
 * Familiarized ourselves with Object Oriented Principles in Python
