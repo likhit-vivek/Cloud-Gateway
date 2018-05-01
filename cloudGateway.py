@@ -3,8 +3,10 @@ from random import randint
 from heapq import heappush, heappop, heapify
 import constants
 from copy import deepcopy
+import pandas as pd
+import matplotlib.pyplot as plt
+import constants
 
-logFile = open('cloudGatewayLog.csv', 'w')
 # decorator function for creating singleton classes
 def singleton(_myClass):
     tasks = {}
@@ -262,22 +264,44 @@ if __name__ == '__main__':
     print '\n*************CloudEngine gateway simulation*************\n'
     # starting cloud gateway
     CloudGateway()
-    log = ' '.join(['Average private Cpu usage, ', 
-                    'Average private memory usage, ',
-                    'Average private disks usage, ',
-                    'Average public Cpu usage, ',
-                    'Average public memory usage, ',
-                    'Average public disks usage, ',
+    logFile = open('cloudGatewayLog.csv', 'w')
+    log = ''.join(['Average private Cpu usage,', 
+                    'Average private memory usage,',
+                    'Average private disks usage,',
+                    'Average public Cpu usage,',
+                    'Average public memory usage,',
+                    'Average public disks usage,',
                     'Number of public machines\n'])
     logFile.write(log)
     taskGenerator = RandomTaskGeneration()
-    for operation in range(10000):
+    for operation in range(100000):
         taskGenerator.executeRandomTask()
     taskGenerator = RandomTaskGeneration()
     constants.deleteWithProbability = 60
+    for operation in range(10000):
+        taskGenerator.executeRandomTask()
+    constants.deleteWithProbability = 40
     for operation in range(10000):
         taskGenerator.executeRandomTask()
     # Numbe of add/delete tasks : X axis
     # Average % Usage : Y axis
     # Average CPU/Memory/Disk usage for both public and private cloud
     #print graph()
+    data = pd.read_csv('cloudGatewayLog.csv')
+    data['Average private Cpu usage'] = data['Average private Cpu usage'] * 100 / constants.vcpuPrivate
+    data['Average public Cpu usage'] = data['Average public Cpu usage'] * 100 / constants.vcpuPublic
+    plt.xlabel('Iteration')
+    plt.ylabel('Percentage usage')
+    plt.title('Increased growth followed by decreased and increased growth')
+    plt.plot(data.index.tolist(), data['Average private Cpu usage'], label='Average private Cpu usage')
+    plt.plot(data.index.tolist(), data['Average public Cpu usage'], label='Average public Cpu usage')
+    plt.legend(loc='lower right')
+    plt.savefig('averageCpuUsage.png')
+    plt.gcf().clear()
+    plt.xlabel('Iteration')
+    plt.ylabel('Number of machines')
+    plt.title('Increased growth followed by decreased and increased growth')
+    plt.plot(data.index.tolist(), data['Number of public machines'], label='Number of public machines')
+    plt.legend(loc='lower right')
+    plt.savefig('numMachines.png')
+    print 'exiting'
